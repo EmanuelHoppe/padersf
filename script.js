@@ -12,63 +12,63 @@ const menuData = [
     name: 'Pizza Funghi',
     description: 'Mit Tomatensoße, Käse & Pilzen',
     image: '[Bild-URL hier]',
-    sizes: { "Klein": 0.00, "Groß": 0.00 }
+    sizes: { "22er": 6.00, "28er": 8.50 }
   },
   {
     category: 'pizza',
     name: 'Pizza Salami',
     description: 'Mit Tomatensoße, Käse & Truthahnsalami',
     image: '[Bild-URL hier]',
-    sizes: { "Klein": 0.00, "Groß": 0.00 }
+    sizes: { "22er": 6.00, "28er": 8.50 }
   },
   {
     category: 'pizza',
     name: 'Pizza Schinken',
     description: 'Mit Tomatensoße, Käse & Putenschnken',
     image: '[Bild-URL hier]',
-    sizes: { "Klein": 0.00, "Groß": 0.00 }
+    sizes: { "22er": 6.00, "28er": 8.50 }
   },
   {
     category: 'pizza',
     name: 'Pizza Brokkoli]',
     description: 'Mit Tomatensoße, Käse & Brokkoli',
     image: '[Bild-URL hier]',
-    sizes: { "Klein": 0.00, "Groß": 0.00 }
+    sizes: { "22er": 6.00, "28er": 8.50 }
   },
   {
     category: 'pizza',
     name: 'Pizza Thunfisch',
     description: 'Mit Tomatensoße, Käse, Thunfisch & Zwiebeln',
     image: '[Bild-URL hier]',
-    sizes: { "Klein": 0.00, "Groß": 0.00 }
+       sizes: { "22er": 6.00, "28er": 9.00 }
   },
   {
     category: 'pizza',
     name: 'Pizza Diavolo',
     description: 'Mit Tomatensoße, Käse,Truthahnsalami, Tomaten, Champignons & Peperoni',
     image: '[Bild-URL hier]',
-    sizes: { "Klein": 0.00, "Groß": 0.00 }
+    sizes: { "22er": 5.50, "28er": 7.50 }
   },
   {
     category: 'pizza',
     name: 'Pizza Hollondaise',
     description: 'Mit Tomatensoße, Käse, Hähnchenbrust, Brokkoli, Mais & Sauce Hollondaise',
     image: '[Bild-URL hier]',
-    sizes: { "Klein": 0.00, "Groß": 0.00 }
+    sizes: { "22er": 5.50, "28er": 7.50 }
   },
   {
     category: 'pizza',
     name: 'Unsere Pizza',
     description: 'Mit Tomatensoße, Käse, Drehspießfleisch, Zwiebeln, Mais & Sauce Hollondaise',
     image: '[Bild-URL hier]',
-    sizes: { "Klein": 0.00, "Groß": 0.00 }
+    sizes: { "22er": 5.50, "28er": 7.50 }
   },
   {
     category: 'pizza',
     name: 'Pizza Sucuk',
     description: 'Mit Tomatensoße, Käse, Knoblauchwurst & Peperoni',
     image: '[Bild-URL hier]',
-    sizes: { "Klein": 0.00, "Groß": 0.00 }
+    sizes: { "22er": 5.50, "28er": 7.50 }
   },
 
   // Snacks
@@ -486,4 +486,5 @@ function submitOrder() {
 // --- Initial ---
 renderMenu();
 renderCart();
+
 
