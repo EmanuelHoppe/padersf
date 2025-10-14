@@ -446,7 +446,7 @@ function submitOrder() {
 
   const status = document.createElement('p'); status.id='status'; container.appendChild(status);
 
-  const restaurantLat = 51.731083, restaurantLon = 8.736139;
+  const restaurantLat = 51.698779560403985, restaurantLon = 8.708877866296865;
 
   form.addEventListener('submit', async (e)=>{
     e.preventDefault();
@@ -486,3 +486,4 @@ function submitOrder() {
 // --- Initial ---
 renderMenu();
 renderCart();
+
