@@ -40,35 +40,35 @@ const menuData = [
     name: 'Pizza Thunfisch',
     description: 'Mit Tomatensoße, Käse, Thunfisch & Zwiebeln',
     image: '[Bild-URL hier]',
-       sizes: { "22er": 6.00, "28er": 9.00 }
+       sizes: { "22er": 6.50, "28er": 9.00 }
   },
   {
     category: 'pizza',
     name: 'Pizza Diavolo',
     description: 'Mit Tomatensoße, Käse,Truthahnsalami, Tomaten, Champignons & Peperoni',
     image: '[Bild-URL hier]',
-    sizes: { "22er": 5.50, "28er": 7.50 }
+    sizes: { "22er": 7.00, "28er": 10.00 }
   },
   {
     category: 'pizza',
     name: 'Pizza Hollondaise',
     description: 'Mit Tomatensoße, Käse, Hähnchenbrust, Brokkoli, Mais & Sauce Hollondaise',
     image: '[Bild-URL hier]',
-    sizes: { "22er": 5.50, "28er": 7.50 }
+    sizes: { "22er": 7.00, "28er": 10.00 }
   },
   {
     category: 'pizza',
     name: 'Unsere Pizza',
     description: 'Mit Tomatensoße, Käse, Drehspießfleisch, Zwiebeln, Mais & Sauce Hollondaise',
     image: '[Bild-URL hier]',
-    sizes: { "22er": 5.50, "28er": 7.50 }
+    sizes: { "22er": 7.00, "28er": 10.00 }
   },
   {
     category: 'pizza',
     name: 'Pizza Sucuk',
     description: 'Mit Tomatensoße, Käse, Knoblauchwurst & Peperoni',
     image: '[Bild-URL hier]',
-    sizes: { "22er": 5.50, "28er": 7.50 }
+    sizes: { "22er": 7.00, "28er": 10.00 }
   },
 
   // Snacks
@@ -84,35 +84,35 @@ const menuData = [
     name: 'Bratwurst',
     description: 'Qualitäts-Wurst vom Rind',
     image: '[Bild-URL hier]',
-    sizes: { "Standard": 0.00 }
+    sizes: { "Standard": 5.00 }
   },
   {
     category: 'snacks',
     name: 'Currywurst',
     description: 'Qualitäts-Wurst vom Rind',
     image: '[Bild-URL hier]',
-    sizes: { "Standard": 0.00 }
+    sizes: { "Standard": 6.00 }
   },
   {
     category: 'snacks',
     name: 'Mantaplatte',
     description: 'Qualitäts-Wurst vom Rind mit Pommes',
     image: '[Bild-URL hier]',
-    sizes: { "Standard": 0.00 }
+    sizes: { "Standard": 8.00 }
   },
   {
     category: 'snacks',
     name: '7 Chicken Nuggets',
     description: 'mit Pommes',
     image: '[Bild-URL hier]',
-    sizes: { "Standard": 0.00 }
+    sizes: { "Standard": 8.00 }
   },
   {
     category: 'snacks',
     name: 'Schnitzel &quot;Wiener Art&quot;',
     description: '180g Geflügel-Schnitzel mit Pommes & Salat',
     image: '[Bild-URL hier]',
-    sizes: { "Standard": 0.00 }
+    sizes: { "Standard": 9.00 }
   },
   
 
@@ -122,21 +122,21 @@ const menuData = [
     name: 'Hamburger',
     description: 'vom Rind 120g',
     image: 'https://cdn.pixabay.com/photo/2014/10/23/18/05/burger-500054_960_720.jpg',
-    sizes: { "Einfach": 4.50, "Doppel": 6.50 }
+    sizes: { "Einzeln": 6.00, "Menü": 10.00 }
   },
   {
     category: 'burger',
     name: 'Cheeseburger',
     description: 'vom Rind 120g',
     image: '[Bild-URL hier]',
-    sizes: { "Einfach": 0.00, "Doppel": 0.00 }
+    sizes: { "Einzeln": 7.00, "Menü": 11.00 }
   },
   {
     category: 'burger',
     name: 'Crispy Chickenburger',
-    description: '[Beschreibung hier]',
+    description: 'Crispy-Chicken Patty 135g',
     image: '[Bild-URL hier]',
-    sizes: { "Einfach": 0.00, "Doppel": 0.00 }
+    sizes: { "Einzeln": 7.00, "Menü": 11.00 }
   },
 
   // Drehspieß
@@ -486,5 +486,6 @@ function submitOrder() {
 // --- Initial ---
 renderMenu();
 renderCart();
+
 
 
