@@ -368,9 +368,25 @@ function removeItem(index) {
 }
 
 // --- Bestellung / Formular ---
+// ... (Ihr vorhandener Code bis hier)
+
+// --- Bestellung / Formular ---
 function submitOrder() {
-  if(cart.length===0){ alert("Ihr Warenkorb ist leer!"); return; }
-  document.body.innerHTML = "";
+  if(cart.length===0){ 
+    alert("Ihr Warenkorb ist leer!"); 
+    return; 
+  }
+  
+  // ANPASSUNG: Statt das Formular direkt zu rendern, navigieren wir zur Bestellseite.
+  window.location.href = 'Bestellung/index.html'; 
+  
+  // Alle anderen Logikzeilen aus der ursprünglichen submitOrder-Funktion 
+  // (Formular-Erstellung, Adressprüfung, Haversine-Berechnung etc.) 
+  // MÜSSEN in die Datei Bestellung/index.html verschoben werden, 
+  // damit das Formular dort gerendert wird und funktioniert.
+}
+
+// ... (Ihr vorhandener Code ab hier)
 
   // --- Zurück Button ---
   const backBtn = document.createElement('button');
@@ -500,5 +516,6 @@ function submitOrder() {
 
 renderMenu();
 renderCart();
+
 
 
