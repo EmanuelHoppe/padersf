@@ -363,7 +363,9 @@ function renderCart() {
     orderBtn.style.color = '#fff';
     orderBtn.style.border = 'none';
     orderBtn.style.cursor = 'pointer';
-    orderBtn.onclick = submitOrder;
+    orderBtn.onclick = () => {
+  window.location.href = 'bestellung/index.html';
+};
     container.appendChild(orderBtn);
   }
 }
@@ -486,6 +488,7 @@ function submitOrder() {
 // --- Initial ---
 renderMenu();
 renderCart();
+
 
 
 
