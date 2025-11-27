@@ -378,7 +378,7 @@ function submitOrder() {
   }
   
   // ANPASSUNG: Statt das Formular direkt zu rendern, navigieren wir zur Bestellseite.
-  window.location.href = 'Bestellung/index.html'; 
+  window.location.href = 'Bestellen/index.html'; 
   
   // Alle anderen Logikzeilen aus der ursprünglichen submitOrder-Funktion 
   // (Formular-Erstellung, Adressprüfung, Haversine-Berechnung etc.) 
@@ -516,6 +516,7 @@ function submitOrder() {
 
 renderMenu();
 renderCart();
+
 
 
 
