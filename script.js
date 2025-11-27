@@ -294,34 +294,81 @@ const menuData = [
 
 ];
 
-// --- Warenkorb aus localStorage ---
+
 let cart = JSON.parse(localStorage.getItem('cart')) || [];
 let currentCategory = 'pizza';
+
+// --- Container erstellen ---
+const app = document.createElement('div');
+app.id = 'app';
+document.body.appendChild(app);
+
+// --- Kategoriebuttons ---
+const nav = document.createElement('nav');
+const categories = [...new Set(menuData.map(item => item.category))];
+categories.forEach(cat => {
+  const btn = document.createElement('button');
+  btn.textContent = cat.charAt(0).toUpperCase() + cat.slice(1);
+  btn.onclick = () => filterCategory(cat);
+  if(cat === currentCategory) btn.classList.add('active');
+  nav.appendChild(btn);
+});
+app.appendChild(nav);
+
+// --- Menü-Container ---
+const menuContainer = document.createElement('div');
+menuContainer.id = 'menu';
+app.appendChild(menuContainer);
+
+// --- Warenkorb-Container ---
+const cartContainer = document.createElement('div');
+cartContainer.id = 'cart-items';
+app.appendChild(cartContainer);
 
 // --- Kategorie wechseln ---
 function filterCategory(cat) {
   currentCategory = cat;
-  document.querySelectorAll('nav button').forEach(btn => btn.classList.remove('active'));
-  event.target.classList.add('active');
+  nav.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+  nav.querySelector(`button:contains(${cat})`)?.classList.add('active');
   renderMenu();
 }
 
 // --- Menü rendern ---
 function renderMenu() {
-  const container = document.getElementById('menu');
-  container.innerHTML = '';
+  menuContainer.innerHTML = '';
   menuData.filter(item => item.category === currentCategory).forEach(item => {
     const div = document.createElement('div');
     div.className = 'item';
-    div.innerHTML = `
-      <img src="${item.image}" alt="${item.name}" />
-      <h3>${item.name}</h3>
-      <select aria-label="Größe wählen">
-        ${Object.entries(item.sizes).map(([size, price]) => `<option value="${size}|${price}">${size} - €${price.toFixed(2)}</option>`).join('')}
-      </select>
-      <button onclick="addToCart('${item.name}', this.previousElementSibling.value)">In den Warenkorb</button>
-    `;
-    container.appendChild(div);
+    
+    const img = document.createElement('img');
+    img.src = item.image;
+    img.alt = item.name;
+    div.appendChild(img);
+    
+    const h3 = document.createElement('h3');
+    h3.textContent = item.name;
+    div.appendChild(h3);
+    
+    const desc = document.createElement('p');
+    desc.textContent = item.description;
+    div.appendChild(desc);
+    
+    const select = document.createElement('select');
+    select.setAttribute('aria-label', 'Größe wählen');
+    Object.entries(item.sizes).forEach(([size, price]) => {
+      const option = document.createElement('option');
+      option.value = `${size}|${price}`;
+      option.textContent = `${size} - €${price.toFixed(2)}`;
+      select.appendChild(option);
+    });
+    div.appendChild(select);
+    
+    const btn = document.createElement('button');
+    btn.textContent = 'In den Warenkorb';
+    btn.onclick = () => addToCart(item.name, select.value);
+    div.appendChild(btn);
+    
+    menuContainer.appendChild(div);
   });
 }
 
@@ -342,16 +389,15 @@ function saveCart() {
 
 // --- Warenkorb rendern ---
 function renderCart() {
-  const container = document.getElementById('cart-items');
-  container.innerHTML = '';
+  cartContainer.innerHTML = '';
   cart.forEach((item,index)=>{
     const div = document.createElement('div');
     div.className='cart-item';
     div.innerHTML = `${item.quantity}x ${item.name} (${item.size}) - €${(item.price*item.quantity).toFixed(2)} <button onclick="removeItem(${index})">&times;</button>`;
-    container.appendChild(div);
+    cartContainer.appendChild(div);
   });
 
-  // Button Warenkorb bestellen hinzufügen
+  // Warenkorb-Bestellen Button
   let orderBtn = document.getElementById('order-btn');
   if(!orderBtn){
     orderBtn = document.createElement('button');
@@ -363,10 +409,8 @@ function renderCart() {
     orderBtn.style.color = '#fff';
     orderBtn.style.border = 'none';
     orderBtn.style.cursor = 'pointer';
-    orderBtn.onclick = () => {
-  window.location.href = 'bestellung/index.html';
-};
-    container.appendChild(orderBtn);
+    orderBtn.onclick = submitOrder;
+    cartContainer.appendChild(orderBtn);
   }
 }
 
@@ -383,22 +427,6 @@ function submitOrder() {
   if(cart.length===0){ alert("Ihr Warenkorb ist leer!"); return; }
 
   document.body.innerHTML = "";
-
-  // Zurück Button
-  const backBtn = document.createElement('button');
-  backBtn.textContent='Zurück';
-  backBtn.style.position='absolute';
-  backBtn.style.top='10px';
-  backBtn.style.right='10px';
-  backBtn.style.background='#E63946';
-  backBtn.style.color='#fff';
-  backBtn.style.border='none';
-  backBtn.style.padding='5px 10px';
-  backBtn.style.cursor='pointer';
-  backBtn.style.borderRadius='5px';
-  backBtn.onclick=()=>{ window.location.href='index.html'; };
-  document.body.appendChild(backBtn);
-
   const container = document.createElement('div');
   container.className='container';
   document.body.appendChild(container);
@@ -419,17 +447,11 @@ function submitOrder() {
   totalDiv.textContent=`Gesamt: €${totalPrice.toFixed(2)}`;
   cartDiv.appendChild(totalDiv);
 
-  // Lieferzeit zufällig 30-45 Minuten
-  const deliveryTime = Math.floor(Math.random()*16)+30;
-  const timeDiv = document.createElement('div');
-  timeDiv.textContent=`Voraussichtliche Lieferzeit: ${deliveryTime} Minuten`;
-  cartDiv.appendChild(timeDiv);
-
   container.appendChild(cartDiv);
 
-  // Formular
+  // Lieferformular
   const form = document.createElement('form');
-  form.innerHTML=`
+  form.innerHTML = `
     <h3>Lieferinformationen</h3>
     <input type="text" id="name" placeholder="Name" required>
     <input type="text" id="address" placeholder="Adresse" required>
@@ -467,14 +489,9 @@ function submitOrder() {
       const customerLat=parseFloat(data[0].lat), customerLon=parseFloat(data[0].lon);
       const distance=haversine(restaurantLat,restaurantLon,customerLat,customerLon);
       if(distance>5){ status.textContent=`❌ Adresse zu weit entfernt (${distance.toFixed(2)} km)`; return; }
-      if(payment==='paypal' && !confirm("PayPal-Verbindung erfolgreich. Bestellung abschicken?")){ status.textContent="❌ PayPal-Zahlung abgebrochen."; return; }
       document.getElementById('distance').value=distance.toFixed(2);
       status.textContent=`✅ Bestellung wird gesendet... Entfernung: ${distance.toFixed(2)} km.`;
-      setTimeout(()=>{
-        status.textContent="✅ Bestellung erfolgreich! Vielen Dank!";
-        cart=[]; saveCart();
-        setTimeout(()=>{ window.location.href='index.html'; },3000);
-      },1500);
+      setTimeout(()=>{ cart=[]; saveCart(); status.textContent="✅ Bestellung erfolgreich!"; },1500);
     }catch(err){ status.textContent="❌ Fehler bei der Adressprüfung."; console.error(err);}
   });
 
@@ -485,10 +502,9 @@ function submitOrder() {
   }
 }
 
-// --- Initial ---
+// --- Initial Render ---
 renderMenu();
 renderCart();
-
 
 
 
