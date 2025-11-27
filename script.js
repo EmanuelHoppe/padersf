@@ -295,11 +295,10 @@ const menuData = [
 ];
 
 
-// --- Warenkorb aus localStorage ---
+// --- Warenkorb & Menü ---
 let cart = JSON.parse(localStorage.getItem('cart')) || [];
 let currentCategory = 'pizza';
 
-// --- Kategorie wechseln ---
 function filterCategory(cat, event) {
   currentCategory = cat;
   document.querySelectorAll('nav button').forEach(btn => btn.classList.remove('active'));
@@ -307,7 +306,6 @@ function filterCategory(cat, event) {
   renderMenu();
 }
 
-// --- Menü rendern ---
 function renderMenu() {
   const container = document.getElementById('menu');
   container.innerHTML = '';
@@ -326,22 +324,19 @@ function renderMenu() {
   });
 }
 
-// --- In den Warenkorb ---
 function addToCart(name, value) {
   const [size, price] = value.split('|');
-  const existing = cart.find(i => i.name===name && i.size===size);
-  if(existing) existing.quantity+=1;
+  const existing = cart.find(i => i.name === name && i.size === size);
+  if(existing) existing.quantity += 1;
   else cart.push({name, size, price: parseFloat(price), quantity:1});
   saveCart();
   renderCart();
 }
 
-// --- Warenkorb speichern ---
 function saveCart() {
   localStorage.setItem('cart', JSON.stringify(cart));
 }
 
-// --- Warenkorb rendern ---
 function renderCart() {
   const container = document.getElementById('cart-items');
   container.innerHTML = '';
@@ -352,9 +347,8 @@ function renderCart() {
     container.appendChild(div);
   });
 
-  let orderBtn = document.getElementById('order-btn');
-  if(!orderBtn){
-    orderBtn = document.createElement('button');
+  if(!document.getElementById('order-btn')) {
+    const orderBtn = document.createElement('button');
     orderBtn.id = 'order-btn';
     orderBtn.textContent = 'Warenkorb bestellen';
     orderBtn.style.marginTop = '10px';
@@ -368,7 +362,6 @@ function renderCart() {
   }
 }
 
-// --- Item entfernen ---
 function removeItem(index) {
   if(cart[index].quantity>1) cart[index].quantity-=1;
   else cart.splice(index,1);
@@ -376,49 +369,19 @@ function removeItem(index) {
   renderCart();
 }
 
-// --- Bestellung ---
+// --- Bestellung / Formular ---
 function submitOrder() {
   if(cart.length===0){ alert("Ihr Warenkorb ist leer!"); return; }
   document.body.innerHTML = "";
-
-  const backBtn = document.createElement('button');
-  backBtn.textContent='Zurück';
-  backBtn.style.position='absolute';
-  backBtn.style.top='10px';
-  backBtn.style.right='10px';
-  backBtn.style.background='#E63946';
-  backBtn.style.color='#fff';
-  backBtn.style.border='none';
-  backBtn.style.padding='5px 10px';
-  backBtn.style.cursor='pointer';
-  backBtn.style.borderRadius='5px';
-  backBtn.onclick=()=>{ window.location.href='index.html'; };
-  document.body.appendChild(backBtn);
 
   const container = document.createElement('div');
   container.className='container';
   document.body.appendChild(container);
 
-  const cartDiv = document.createElement('div');
-  cartDiv.innerHTML = `<h3>Warenkorb & Rechnung</h3>`;
-  let totalPrice = 0;
-  cart.forEach(item=>{
-    const itemDiv = document.createElement('div');
-    const itemTotal = item.price*item.quantity;
-    totalPrice+=itemTotal;
-    itemDiv.textContent=`${item.name} (${item.size}) x${item.quantity} - €${itemTotal.toFixed(2)}`;
-    cartDiv.appendChild(itemDiv);
-  });
-  const totalDiv = document.createElement('div');
-  totalDiv.className='total';
-  totalDiv.textContent=`Gesamt: €${totalPrice.toFixed(2)}`;
-  cartDiv.appendChild(totalDiv);
+  let totalPrice = cart.reduce((sum, i) => sum + i.price*i.quantity, 0);
 
-  container.appendChild(cartDiv);
-
-  // --- Lieferformular ---
   const form = document.createElement('form');
-  form.innerHTML=`
+  form.innerHTML = `
     <h3>Lieferinformationen</h3>
     <input type="text" id="name" placeholder="Name" required>
     <input type="text" id="address" placeholder="Adresse" required>
@@ -431,7 +394,8 @@ function submitOrder() {
       <option value="bar">Bar</option>
     </select>
     <input type="hidden" id="distance">
-    <div id="paypal-button-container"></div>
+    <input type="hidden" id="paypal_authorization">
+    <div id="paypal-button-container" style="margin-top:10px;"></div>
     <button type="submit">Bestellen</button>
   `;
   container.appendChild(form);
@@ -439,57 +403,72 @@ function submitOrder() {
   const status = document.createElement('p'); status.id='status'; container.appendChild(status);
 
   const restaurantLat = 51.696099452961406, restaurantLon = 8.710803876287656;
+  let authorizationID = null;
 
-  form.addEventListener('submit', async (e)=>{
+  form.payment.addEventListener('change', e => {
+    const ppContainer = document.getElementById('paypal-button-container');
+    if(e.target.value==='paypal') {
+      ppContainer.innerHTML='';
+      const script = document.createElement('script');
+      script.src = "https://www.paypal.com/sdk/js?client-id=AQ5WBKDf0hxEb5U_05ObXD5sMzfry1y-UrwpHzQqnDuBjclZqlJjAGZ-Ur0kIsSsve23Yd4IDjSGkJXg&currency=EUR";
+      script.onload = () => {
+        paypal.Buttons({
+          createOrder: (data, actions) => actions.order.create({
+            purchase_units: [{ amount: { value: totalPrice.toFixed(2) } }]
+          }),
+          onApprove: (data, actions) => actions.order.authorize().then(auth => {
+            authorizationID = auth.purchase_units[0].payments.authorizations[0].id;
+            document.getElementById('paypal_authorization').value = authorizationID;
+            status.textContent = "✔ PayPal-Zahlung autorisiert.";
+          })
+        }).render('#paypal-button-container');
+      };
+      document.body.appendChild(script);
+    } else {
+      document.getElementById('paypal-button-container').innerHTML='';
+      authorizationID = null;
+    }
+  });
+
+  form.addEventListener('submit', async e=>{
     e.preventDefault();
-    const name=document.getElementById('name').value.trim();
-    const address=document.getElementById('address').value.trim();
-    const phone=document.getElementById('phone').value.trim();
-    const email=document.getElementById('email').value.trim();
-    const payment=document.getElementById('payment').value;
+    const name=form.name.value.trim();
+    const address=form.address.value.trim();
+    const phone=form.phone.value.trim();
+    const email=form.email.value.trim();
+    const payment=form.payment.value;
+
     if(!name||!address||!phone||!email||!payment){ alert("Bitte alle Felder ausfüllen!"); return; }
+
+    if(payment==='paypal' && !authorizationID){
+      status.textContent = "⚠ Bitte zuerst PayPal-Zahlung autorisieren!";
+      return;
+    }
 
     status.textContent="Adresse wird geprüft...";
     try{
-      const url=`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`;
-      const res=await fetch(url); const data=await res.json();
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`);
+      const data = await res.json();
       if(data.length===0){ status.textContent="❌ Adresse konnte nicht gefunden werden."; return; }
+
       const customerLat=parseFloat(data[0].lat), customerLon=parseFloat(data[0].lon);
       const distance=haversine(restaurantLat,restaurantLon,customerLat,customerLon);
       if(distance>5){ status.textContent=`❌ Adresse zu weit entfernt (${distance.toFixed(2)} km)`; return; }
-      document.getElementById('distance').value=distance.toFixed(2);
+      form.distance.value = distance.toFixed(2);
 
-      if(payment==='paypal'){
-        status.textContent="PayPal-Zahlung wird gestartet...";
-        // Dynamisch PayPal SDK einbinden
-        const script = document.createElement('script');
-        script.src = "https://www.paypal.com/sdk/js?client-id=AQ5WBKDf0hxEb5U_05ObXD5sMzfry1y-UrwpHzQqnDuBjclZqlJjAGZ-Ur0kIsSsve23Yd4IDjSGkJXg&currency=EUR";
-        script.onload = () => {
-          paypal.Buttons({
-            createOrder: function(data, actions) {
-              return actions.order.create({
-                purchase_units: [{
-                  amount: { value: totalPrice.toFixed(2) }
-                }]
-              });
-            },
-            onApprove: function(data, actions) {
-              return actions.order.capture().then(function(details) {
-                status.textContent=`✅ Zahlung erfolgreich! Vielen Dank ${details.payer.name.given_name}!`;
-                cart=[]; saveCart();
-                setTimeout(()=>{ window.location.href='index.html'; },3000);
-              });
-            }
-          }).render('#paypal-button-container');
-        };
-        document.body.appendChild(script);
-      } else {
-        status.textContent=`✅ Bestellung erfolgreich! Entfernung: ${distance.toFixed(2)} km.`;
+      // --- Formular an admin.php senden ---
+      const formData = new FormData(form);
+      formData.append('cart', JSON.stringify(cart));
+      const response = await fetch('admin.php', { method:'POST', body:formData });
+      if(response.ok){
+        status.textContent = `✅ Bestellung erfolgreich!`;
         cart=[]; saveCart();
-        setTimeout(()=>{ window.location.href='index.html'; },3000);
+        setTimeout(()=>{ window.location.href='index.html'; }, 2000);
+      } else {
+        status.textContent = "❌ Fehler beim Senden der Bestellung!";
       }
 
-    }catch(err){ status.textContent="❌ Fehler bei der Adressprüfung."; console.error(err);}
+    } catch(err){ status.textContent="❌ Fehler bei der Adressprüfung."; console.error(err);}
   });
 
   function haversine(lat1,lon1,lat2,lon2){
@@ -499,9 +478,5 @@ function submitOrder() {
   }
 }
 
-// --- Initial ---
 renderMenu();
 renderCart();
-
-
-
