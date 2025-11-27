@@ -293,33 +293,6 @@ const menuData = [
 
 
 ];
-function submitOrder() {
-  if(cart.length===0){ alert("Ihr Warenkorb ist leer!"); return; }
-  document.body.innerHTML = "";
-
-  // --- Zurück Button ---
-  const backBtn = document.createElement('button');
-  backBtn.textContent = 'Zurück';
-  backBtn.style.position = 'absolute';
-  backBtn.style.top = '10px';
-  backBtn.style.right = '10px';
-  backBtn.style.background = '#E63946';
-  backBtn.style.color = '#fff';
-  backBtn.style.border = 'none';
-  backBtn.style.padding = '5px 10px';
-  backBtn.style.cursor = 'pointer';
-  backBtn.style.borderRadius = '5px';
-  backBtn.onclick = () => { window.location.href='index.html'; };
-  document.body.appendChild(backBtn);
-
-  const container = document.createElement('div');
-  container.className='container';
-  document.body.appendChild(container);
-
-  // ... hier folgt der restliche Code für Formular und Warenkorb
-}
-
-
 // --- Warenkorb & Menü ---
 let cart = JSON.parse(localStorage.getItem('cart')) || [];
 let currentCategory = 'pizza';
@@ -372,7 +345,7 @@ function renderCart() {
     container.appendChild(div);
   });
 
-  if(!document.getElementById('order-btn')) {
+  if(!document.getElementById('order-btn') && cart.length>0) {
     const orderBtn = document.createElement('button');
     orderBtn.id = 'order-btn';
     orderBtn.textContent = 'Warenkorb bestellen';
@@ -398,6 +371,21 @@ function removeItem(index) {
 function submitOrder() {
   if(cart.length===0){ alert("Ihr Warenkorb ist leer!"); return; }
   document.body.innerHTML = "";
+
+  // --- Zurück Button ---
+  const backBtn = document.createElement('button');
+  backBtn.textContent = 'Zurück';
+  backBtn.style.position = 'absolute';
+  backBtn.style.top = '10px';
+  backBtn.style.right = '10px';
+  backBtn.style.background = '#E63946';
+  backBtn.style.color = '#fff';
+  backBtn.style.border = 'none';
+  backBtn.style.padding = '5px 10px';
+  backBtn.style.cursor = 'pointer';
+  backBtn.style.borderRadius = '5px';
+  backBtn.onclick = () => { window.location.href='index.html'; };
+  document.body.appendChild(backBtn);
 
   const container = document.createElement('div');
   container.className='container';
@@ -425,11 +413,14 @@ function submitOrder() {
   `;
   container.appendChild(form);
 
-  const status = document.createElement('p'); status.id='status'; container.appendChild(status);
+  const status = document.createElement('p'); 
+  status.id='status'; 
+  container.appendChild(status);
 
   const restaurantLat = 51.696099452961406, restaurantLon = 8.710803876287656;
   let authorizationID = null;
 
+  // --- PayPal Button nur anzeigen, wenn PayPal gewählt ---
   form.payment.addEventListener('change', e => {
     const ppContainer = document.getElementById('paypal-button-container');
     if(e.target.value==='paypal') {
@@ -450,8 +441,8 @@ function submitOrder() {
       };
       document.body.appendChild(script);
     } else {
-      document.getElementById('paypal-button-container').innerHTML='';
-      authorizationID = null;
+      ppContainer.innerHTML='';
+      authorizationID = null;  // bei Barzahlung zurücksetzen
     }
   });
 
@@ -465,6 +456,7 @@ function submitOrder() {
 
     if(!name||!address||!phone||!email||!payment){ alert("Bitte alle Felder ausfüllen!"); return; }
 
+    // --- PayPal: Autorisierung prüfen ---
     if(payment==='paypal' && !authorizationID){
       status.textContent = "⚠ Bitte zuerst PayPal-Zahlung autorisieren!";
       return;
@@ -481,7 +473,7 @@ function submitOrder() {
       if(distance>5){ status.textContent=`❌ Adresse zu weit entfernt (${distance.toFixed(2)} km)`; return; }
       form.distance.value = distance.toFixed(2);
 
-      // --- Formular an admin.php senden ---
+      // --- Bestellung an admin.php senden ---
       const formData = new FormData(form);
       formData.append('cart', JSON.stringify(cart));
       const response = await fetch('admin.php', { method:'POST', body:formData });
@@ -493,7 +485,10 @@ function submitOrder() {
         status.textContent = "❌ Fehler beim Senden der Bestellung!";
       }
 
-    } catch(err){ status.textContent="❌ Fehler bei der Adressprüfung."; console.error(err);}
+    } catch(err){
+      status.textContent="❌ Fehler bei der Adressprüfung."; 
+      console.error(err);
+    }
   });
 
   function haversine(lat1,lon1,lat2,lon2){
@@ -505,4 +500,5 @@ function submitOrder() {
 
 renderMenu();
 renderCart();
+
 
