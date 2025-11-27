@@ -293,6 +293,31 @@ const menuData = [
 
 
 ];
+function submitOrder() {
+  if(cart.length===0){ alert("Ihr Warenkorb ist leer!"); return; }
+  document.body.innerHTML = "";
+
+  // --- Zurück Button ---
+  const backBtn = document.createElement('button');
+  backBtn.textContent = 'Zurück';
+  backBtn.style.position = 'absolute';
+  backBtn.style.top = '10px';
+  backBtn.style.right = '10px';
+  backBtn.style.background = '#E63946';
+  backBtn.style.color = '#fff';
+  backBtn.style.border = 'none';
+  backBtn.style.padding = '5px 10px';
+  backBtn.style.cursor = 'pointer';
+  backBtn.style.borderRadius = '5px';
+  backBtn.onclick = () => { window.location.href='index.html'; };
+  document.body.appendChild(backBtn);
+
+  const container = document.createElement('div');
+  container.className='container';
+  document.body.appendChild(container);
+
+  // ... hier folgt der restliche Code für Formular und Warenkorb
+}
 
 
 // --- Warenkorb & Menü ---
@@ -480,3 +505,4 @@ function submitOrder() {
 
 renderMenu();
 renderCart();
+
